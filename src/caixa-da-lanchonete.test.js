@@ -28,6 +28,30 @@ describe('CaixaDaLanchonete', () => {
     ])('compra de 3 itens em %p deve resultar em %p', validaTeste);
 
     test.each([
+        ['credito', 'R$ 13,39', ['cafe,1', 'sanduiche,1', 'queijo,1',"chantily,1"]],
+        ['debito', 'R$ 13,00', ['cafe,1', 'sanduiche,1', 'queijo,1',"chantily,1"]],
+        ['dinheiro', 'R$ 12,35', ['cafe,1', 'sanduiche,1', 'queijo,1',"chantily,1"]],
+    ])('compra de 4 itens sendo 2 extras e 2 principais em %p deve resultar em %p', validaTeste);
+
+    test.each([
+        ['credito', 'R$ 14,94', ['cafe,1', 'sanduiche,1', 'queijo,1',"chantily,2"]],
+        ['debito', 'R$ 15,00', ['cafe,1', 'sanduiche,1', 'queijo,2',"chantily,1"]],
+        ['dinheiro', 'R$ 13,77', ['cafe,1', 'sanduiche,1', 'queijo,1',"chantily,2"]],
+    ])('compra de 5 itens sendo 2 principais e 3 extras em %p deve resultar em %p', validaTeste);
+
+    test.each([
+        ['credito', 'R$ 16,48', ['cafe,2', 'sanduiche,1', 'queijo,1',"chantily,1"]],
+        ['debito', 'R$ 19,50', ['cafe,1', 'sanduiche,2', 'queijo,1',"chantily,1"]],
+        ['dinheiro', 'R$ 15,20', ['cafe,2', 'sanduiche,1', 'queijo,1',"chantily,1"]],
+    ])('compra de 5 itens sendo 3 principais e 2 extras em %p deve resultar em %p', validaTeste);
+
+    test.each([
+        ['credito', 'R$ 9,27', ['cafe,1', 'chantily,2','chantily,2']],
+        ['debito', 'R$ 14,50', ['sanduiche,1', 'queijo,2','queijo,2']],
+        ['dinheiro', 'R$ 8,55', ['cafe,1',"chantily,2","chantily,2"]],
+    ])('compra de 5 itens sendo 1 principail e 4 extras em %p deve resultar em %p', validaTeste);
+
+    test.each([
         ['dinheiro', 'R$ 33,73', ['cafe,4', 'sanduiche,3', 'queijo,2']],
         ['credito', 'R$ 36,56', ['cafe,4', 'sanduiche,3', 'queijo,2']],
         ['debito', 'R$ 35,50', ['cafe,4', 'sanduiche,3', 'queijo,2']],

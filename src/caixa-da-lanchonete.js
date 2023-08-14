@@ -1,6 +1,6 @@
 class CaixaDaLanchonete {
     msgErro = "";
-    resultado = "Calcular";
+    resultado = "";
     metodoDePagamento = "";
     codigo = "";
     quantidade = 0;
@@ -8,42 +8,33 @@ class CaixaDaLanchonete {
     erro = true;
     itens = [];
     fatorMultiplicador = 1;
-    encontrarItemPrincipalParaChantily = true;
-    encontrarItemPrincipalParaQueijo = true;
+    encontrarErroItemExtra = true;
     encontrarItem = true;
 
     calcularValorDaCompra(metodoDePagamento, itens) {
-
         this.metodoDePagamento = metodoDePagamento;
         this.itens = itens;
 
-        this.codigoItem = itens[0];
-        this.verificaMetodoDePagamento();
-        this.verificaItemPedido();
-        this.verificaErro();
+        this.verificarMetodoDePagamento();
+        this.verificarItemPedido();
+        this.verificarErro();
         return this.resultado;
     }
 
-    //Funciona
-    verificaErro() {
+    verificarErro() {
         if ("" != this.msgErro) {
             this.resultado = this.msgErro;
         } else {
-            if (this.total === 0.00) {
-                this.resultado = "Não há itens no carrinho de compra!";
-            }
             this.resultado = `R$ ${this.total}`;
             this.resultado = this.resultado.replace(".", ",");
         }
     }
 
-    //Funciona
-    verificaMetodoDePagamento() {
+    verificarMetodoDePagamento() {
         switch (this.metodoDePagamento) {
             case 'dinheiro':
                 this.fatorMultiplicador = 0.95;
                 break;
-
             case 'credito':
                 this.fatorMultiplicador = 1.03;
                 break;
@@ -56,12 +47,67 @@ class CaixaDaLanchonete {
                 }
                 break;
         }
-
     }
 
+    verificarItemPedido() {
+        const cardapio = this.obterCardapio();
+        this.verificarCarrinhoVazio();
 
-    verificaItemPedido() {
-        const itensDoPedido = [
+        for (let i = 0; i < this.itens.length; i++) {
+            this.item = this.itens[i].split(',');
+            this.codigo = this.item[0];
+            this.quantidade = parseInt(this.item[1]);
+
+            this.verificarItemExtra("queijo", "sanduiche");
+            this.verificarItemExtra("chantily", "cafe");
+
+            for (const itemPedido of cardapio) {
+                const [codigoPedido, descricao, valor] = itemPedido.split(',');
+
+                this.buscarPrecoDoPedido(codigoPedido, valor);
+                this.verificarQuantidadeValida();
+            }
+        }
+        this.verificarItemInvalido();
+        this.total = (this.total * this.fatorMultiplicador).toFixed(2);
+    }
+
+    verificarItemExtra(itemExtra, itemPrincipal) {
+        if (this.codigo === itemExtra) {
+            for (let indice = 0; indice < this.itens.length; indice++) {
+                let itemProdutoExtra = this.itens[indice].split(',');
+                let codigoPrincipal = itemProdutoExtra[0];
+                if (itemPrincipal === codigoPrincipal) {
+                    this.encontrarErroItemExtra = false;
+                }
+            }
+            if (this.encontrarErroItemExtra && this.msgErro === "") {
+                this.msgErro = "Item extra não pode ser pedido sem o principal";
+            }
+        }
+    }
+
+    buscarPrecoDoPedido(codigoPedido, valor) {
+        if (this.codigo === codigoPedido) {
+            this.erro = false;
+            this.total += parseFloat(valor) * parseInt(this.quantidade);
+        }
+    }
+
+    verificarQuantidadeValida() {
+        if (this.quantidade === 0) {
+            this.msgErro = "Quantidade inválida!";
+        }
+    }
+
+    verificarItemInvalido() {
+        if (this.erro && this.msgErro === "") {
+            this.msgErro = "Item inválido!";
+        }
+    }
+
+    obterCardapio() {
+        return [
             'cafe,Café,3',
             'chantily,Chantily (extra do Café),1.50',
             'suco,Suco Natural,6.20',
@@ -71,64 +117,12 @@ class CaixaDaLanchonete {
             'combo1,1 Suco e 1 Sanduíche,9.50',
             'combo2,1 Café e 1 Sanduíche,7.50'
         ];
+    }
 
+    verificarCarrinhoVazio() {
         if (this.itens.length === 0 && this.msgErro === "") {
             this.msgErro = "Não há itens no carrinho de compra!";
         }
-
-        for (let i = 0; i < this.itens.length; i++) {
-            this.item = this.itens[i].split(',');
-            this.codigo = this.item[0];
-            this.quantidade = parseInt(this.item[1]);
-
-            if (this.codigo === "queijo") {
-                for (let ii = 0; ii < this.itens.length; ii++) {
-
-                    let itemp = this.itens[ii].split(',');
-                    let codigop = itemp[0];
-                    if ("sanduiche" === codigop) {
-                        this.encontrarItemPrincipalParaChantily = false;
-                    }
-
-                }
-                if (this.encontrarItemPrincipalParaChantily && this.msgErro === "") {
-                    this.msgErro = "Item extra não pode ser pedido sem o principal";
-                }
-            }
-            if (this.codigo === "chantily") {
-                for (let ii = 0; ii < this.itens.length; ii++) {
-
-                    let itemp = this.itens[ii].split(',');
-                    let codigop = itemp[0];
-                    if ("cafe" === codigop) {
-                        this.encontrarItemPrincipalParaChantily = false;
-                    }
-
-                }
-                if (this.encontrarItemPrincipalParaChantily && this.msgErro === "") {
-                    this.msgErro = "Item extra não pode ser pedido sem o principal";
-                }
-            }
-
-            for (const itemPedido of itensDoPedido) {
-                const [codigoPedido, descricao, valor] = itemPedido.split(',');
-
-
-                if (this.codigo === codigoPedido) {
-                    this.erro = false;
-                    this.total += parseFloat(valor) * parseInt(this.quantidade);
-                }
-                if (this.quantidade === 0 && this.msgErro === "") {
-                    this.msgErro = "Quantidade inválida!";
-                }
-            }
-        }
-
-        if (this.erro && this.msgErro === "") {
-            this.msgErro = "Item inválido!";
-        }
-
-        this.total = (this.total * this.fatorMultiplicador).toFixed(2);
     }
 }
 
